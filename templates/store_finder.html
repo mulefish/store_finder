@@ -70,6 +70,7 @@
     <script>
         ///// THIS SECTION WILL FIND THE DISTANCE of the GIVEN CITIES and YOUR LOCATION
         function findDistances(milesOrKilometers) {
+
             function haversineDistance(coords1, coords2, unit = 'kilometers') {
                 const toRadians = (degrees) => degrees * Math.PI / 180;
 
@@ -132,6 +133,8 @@
 
 
         if (navigator.geolocation) {
+            console.log("A")
+
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const latitude = position.coords.latitude;
@@ -143,6 +146,8 @@
                     document.getElementById("accuracy").innerHTML = accuracy;
                 },
                 (error) => {
+                    console.log("B")
+
                     let msg = error.code + " : ";
                     switch (error.code) {
                         case error.PERMISSION_DENIED:
@@ -162,6 +167,8 @@
                 }
             );
         } else {
+            console.log("C")
+
             document.getElementById("latitude").value = "Geolocation=NOPE!";
         }
     </script>
