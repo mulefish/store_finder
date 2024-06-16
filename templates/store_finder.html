@@ -1,0 +1,179 @@
+<html>
+
+<body>
+    <h3>This will try and get your browser's location - it will take a few seconds. </h3>
+    <h5>I have intentionally kept all logic here on this page - hopefully to make this easier to read. </h5>
+
+
+    <fieldset>
+        <legend>Your location</legend>
+
+        <table border="1">
+            <tr>
+                <td>latitude</td>
+                <td>
+                    <div id="latitude"></div>
+                </td>
+                <td>longitude</td>
+                <td>
+                    <div id="longitude"></div>
+                </td>
+                <td>accuracy</td>
+                <td>
+                    <div id="accuracy"></div>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <fieldset>
+        <legend>stores</legend>
+        <table border="1">
+            <tr>
+                <th>city</th>
+                <th>latitude</th>
+                <th>longitude</th>
+                <th>distance</th>
+            </tr>
+            <tr>
+                <td>Portland</td>
+                <td><input type="text" id="portlandLat" value="45.523064"></input></td>
+                <td><input type="text" id="portlandLong" value="-122.676483"></input></td>
+                <td id="portlandDistance"></td>
+            </tr>
+            <tr>
+                <td>Oregon City</td>
+                <td><input type="text" id="oregonCityLat" value="45.35"></input></td>
+                <td><input type="text" id="oregonCityLong" value="-122.6068"></input></td>
+                <td id="oregonCityDistance"></td>
+
+            </tr>
+            <tr>
+                <td>New York</td>
+                <td><input type="text" id="nyLat" value="40.7128"></input></td>
+                <td><input type="text" id="nyLong" value="-74.0060"></input></td>
+                <td id="nyDistance"></td>
+            </tr>
+
+            <tr>
+                <td>San Fransico</td>
+                <td><input type="text" id="sfLat" value="37.7"></input></td>
+                <td><input type="text" id="sfLong" value="-122.4"></input></td>
+                <td id="sfDistance"></td>
+            </tr>
+
+        </table>
+        <button onclick="findDistances('miles')">find distances ( miles )</button>
+        <button onclick="findDistances('kilometers')">find distances ( kilometers )</button>
+
+    </fieldset>
+    <script>
+        ///// THIS SECTION WILL FIND THE DISTANCE of the GIVEN CITIES and YOUR LOCATION
+        function findDistances(milesOrKilometers) {
+            function haversineDistance(coords1, coords2, unit = 'kilometers') {
+                const toRadians = (degrees) => degrees * Math.PI / 180;
+
+                const [lat1, lon1] = coords1;
+                const [lat2, lon2] = coords2;
+
+                // Radius of the Earth in miles or kilometers
+                const R = unit === 'miles' ? 3958.8 : 6371; 
+                const dLat = toRadians(lat2 - lat1);
+                const dLon = toRadians(lon2 - lon1);
+
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const distance = R * c;
+                return distance;
+            }
+
+
+            const yourNorth = document.getElementById("latitude").innerHTML
+            const yourWest = document.getElementById("longitude").innerHTML
+            const yourLat = parseFloat(yourNorth)
+            const yourLong = parseFloat(yourWest)
+            const coords1 = [yourLat,yourLong]
+
+            const cities = ["portland", "oregonCity","ny","sf"]
+            for ( let i = 0 ; i < cities.length; i++) { 
+                const north = cities[i] + "Lat"
+                const west = cities[i] + "Long"
+                const dist = cities[i] + "Distance"
+                const lat_as_string = document.getElementById(north).value
+                const long_as_string = document.getElementById(west).value
+                const lat = parseFloat(lat_as_string)
+                const long = parseFloat(long_as_string)
+                // console.log( yourLat + "   " + yourLong + "   " + lat + "   " + long + "  " + typeof lat  + "   " + cities[i] )
+
+                const coords2 = [lat, long]
+                const distance = haversineDistance(coords1, coords2, milesOrKilometers)
+
+                document.getElementById(dist).innerHTML = distance.toFixed(1)
+              
+
+            }
+
+
+        }
+
+// // Example usage:
+// const coords1 = [45.3573, -122.6068]; // Oregon City
+// const coords2 = [40.7128, -74.0060];  // New York City
+
+// console.log(haversineDistance(coords1, coords2, 'miles')); // Distance in miles
+// console.log(haversineDistance(coords1, coords2, 'kilometers')); // Distance in kilometers
+
+
+    </script>
+
+
+
+
+
+    <script>
+
+        ///// THIS SECTION WILL FIND YOUR LAT/LONG LOCATION
+
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+
+                    document.getElementById("latitude").innerHTML = latitude;
+                    document.getElementById("longitude").innerHTML = longitude;
+                    document.getElementById("accuracy").innerHTML = accuracy;
+                },
+                (error) => {
+                    let msg = error.code + " : ";
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            msg = "User denied the request for Geolocation.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            msg = "Location information is unavailable.";
+                            break;
+                        case error.TIMEOUT:
+                            msg = "The request to get user location timed out.";
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            msg = "An unknown error occurred.";
+                            break;
+                    }
+                    document.getElementById("latitude").value = msg;
+                }
+            );
+        } else {
+            document.getElementById("latitude").value = "Geolocation=NOPE!";
+        }
+    </script>
+
+
+
+</body>
+
+</html>
